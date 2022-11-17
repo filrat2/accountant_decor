@@ -1,19 +1,15 @@
 # -*- coding: utf-8 -*-
 
-from pprint import pprint
-
 
 class Manager():
 
     def __init__(self):
-        self.ACCOUNT_BALANCE_FILEPATH = 'account_balance.txt'
-        self.STORE_FILEPATH = 'store.csv'
+        self.account_balance_filepath = 'account_balance.txt'
+        self.store_filepath = 'store.csv'
         self.operation_history = []
         self.store = {}
-
+        self.account_balance = []
         self.actions = {}
-
-        # read_store(self.store, self.STORE_FILEPATH)
 
     def assign(self, name):
 
@@ -21,10 +17,10 @@ class Manager():
             self.actions[name] = func
         return decorate
 
-    def execute(self, action_name):
+    def execute(self, action_name, *args, **kwargs):
         action = self.actions[action_name]
 
-        action()
+        return action(*args, **kwargs)
 
 
 manager = Manager()
@@ -46,7 +42,7 @@ def read_store(store, filename):
                 'product_count': count
                 }
             store[name] = store_dict
-    return(store)
+    return store
 
 # %% function for check items count in warehouse
 
@@ -77,7 +73,7 @@ def read_account_balance(account_balance_file):
     account_balance_open = open(account_balance_file)
     account_balance_str = account_balance_open.read()
     account_balance = float(account_balance_str)
-    return(account_balance)
+    return account_balance
 
 # %% account balance export/save function
 
@@ -148,6 +144,8 @@ def change_account_balance(account_balance, operation_history):
                     f"Twoje saldo wynosi {account_balance}.")
         operation_history.append(msg_fail)
 
+    return account_balance
+
 # %% function for buy items to warehouse
 
 
@@ -198,12 +196,15 @@ def buy(product_name, store, account_balance, operation_history):
     else:
         operation_history.append(message_buy)
         account_balance -= product_total_price
+
         if product_name in store.keys():
             store[product_name]['product_price'] = product_price
             store[product_name]['product_count'] += product_count
         else:
             store[product_name] = {'product_price': product_price,
                                    'product_count': product_count}
+
+    return(account_balance)
 
 # %% function for sell items from store
 
@@ -256,6 +257,8 @@ def sell(product_name, store, account_balance, operation_history):
     else:
         print("Brak artykułu o takiej nazwie.")
 
+    return(account_balance)
+
 # %% function for export/save products to *.csv file
 
 
@@ -281,19 +284,3 @@ def generate_report(operation_history):
         print(operation + "\n")
 
     print("_" * 5 + "\nKoniec raportu\n")
-
-
-pprint(manager.actions)
-
-''' EXECUTE
-manager.execute('whs_read')
-manager.execute('whs_write')
-manager.execute('whs_check')
-manager.execute('acc_read')
-manager.execute('acc_write')
-manager.execute('acc_display')
-manager.execute('acc_change')
-manager.execute('kupno')
-manager.execute('sprzedaz')
-manager.execute('raport')
-'''
